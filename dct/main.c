@@ -38,16 +38,17 @@ static __inline__ ticks getticks(void)
 
      return (((ticks)a) | (((ticks)d) << 32));
 }
-
-int n = 1000000;
+int n = 4;
 int size = 8;
-float in[64*1000000] __attribute__((aligned(0x1000)));
-float out[64*1000000] __attribute__((aligned(0x1000)));
+float in[64*3400] __attribute__((aligned(0x1000)));
+float out[64*3400] __attribute__((aligned(0x1000)));
 
 void test() {
     ticks begin, end;
     int k, i, j;
     for (k = 0; k < n; k++) {
+        if (k % 2 == 0)
+            continue;
         for (i = 0; i < size; i++) {
             for (j = 0; j < size; j++) {
                 in[64*k + 8*i + j] = x[8*i+j];
@@ -58,10 +59,30 @@ void test() {
     begin = getticks();
     _fdct(in, out, n);
     end = getticks();
+        k = n - 1;
+    for (k = 0; k < n; k++) {
+        for (i = 0; i < size; i++) {
+            for (j = 0; j < size; j++) {
+                printf("%12.3f", out[64*k + 8*i + j]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
     printf("fdct\t%Ld\n", (end - begin) / 1);
     begin = getticks();
     _idct(out, in, n);
     end = getticks();
+        k = n - 1;
+    for (k = 0; k < n; k++) {
+        for (i = 0; i < size; i++) {
+            for (j = 0; j < size; j++) {
+                printf("%12.3f", in[64*k + 8*i + j]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
     printf("idct\t%Ld\n", (end - begin) / 1);
 }
 
